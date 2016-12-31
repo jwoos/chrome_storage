@@ -3,6 +3,12 @@
 	"version": "0.0.1",
 	"description": "A package to interact with Chrome storage",
 	"main": "build/dist/index.js",
+	"scripts": {
+		"pretest": "./scripts/pretest.sh",
+		"test": "./scripts/test.sh",
+		"posttest": "./scripts/posttest.sh",
+		"prepublish": "./scripts/pretest.sh"
+	},
 	"engines": {
 		"node": ">=6.0"
 	},
@@ -13,9 +19,9 @@
 	],
 	"repository": "git@github.com:jwoos/chrome_store.git",
 	"bugs": {
-    "url": "https://github.com/jwoos/chrome_store/issues"
-  },
-  "homepage": "https://github.com/jwoos/chrome_store#readme",
+		"url": "https://github.com/jwoos/chrome_store/issues"
+	},
+	"homepage": "https://github.com/jwoos/chrome_store#readme",
 	"author": "Jun Woo Shin <shin.junwoo97@gmail.com>",
 	"license": "MIT",
 	"devDependencies": {

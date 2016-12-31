@@ -5,7 +5,8 @@
 		"sourceMap": true,
 		"removeComments": true,
 		"allowJs": true,
-		"outDir": "./tmp/"
+		"outDir": "./build/",
+		"module": "commonjs"
 	},
 	"include": [
 		"./src/**/*",

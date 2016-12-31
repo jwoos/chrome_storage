@@ -1,0 +1,11 @@
+{
+	"extends": "tslint:latest",
+	"rules": {
+		"indent": [true, "tabs"],
+		"quotemark": [true, "single", "avoid-escape"],
+		"semicolon": [true, "always"],
+		"no-console": [false],
+		"max-line-length": [false],
+		"array-type": [true, "generic"]
+	}
+}

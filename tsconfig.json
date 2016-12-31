@@ -1,0 +1,22 @@
+{
+	"compilerOptions": {
+		"noImplicitAny": false,
+		"target": "es6",
+		"sourceMap": true,
+		"removeComments": true,
+		"allowJs": true,
+		"outDir": "./tmp/"
+	},
+	"include": [
+		"./src/**/*",
+		"./test/**/*"
+	],
+	"exclude": [
+		"node_modules",
+		"bower_components"
+	],
+	"awesomeTypescriptLoaderOptions": {
+		"transpileOnly": true,
+		"emitRequireType": true
+	}
+}

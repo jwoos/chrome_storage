@@ -12,21 +12,21 @@ import * as utils from './utils';
 
 export class ChromeStore {
 	public readonly _: LoDashStatic;
+	public readonly changes: Array<interfaces.ChangeLog>;
 	public readonly config: interfaces.Configuration;
-	public readonly utils: Object;
 	public readonly ready: Promise<void | Error>;
+	public readonly utils: Object;
 	public storage: Object;
 	private chromeStore: chrome.storage.StorageArea;
-	public readonly changes: Array<interfaces.ChangeLog>;
 
 	constructor(config: interfaces.Configuration | void) {
 		const readyPromise: interfaces.DeferredPromise = utils.deferPromise();
 
 		this._ = _;
 		this.config = Object.assign(config || {}, {
-			onChange: () => {},
 			area: 'local',
-			trackChanges: true
+			onChange: null,
+			trackChanges: true,
 		});
 		this.utils = utils;
 		this.ready = readyPromise.promise;
@@ -40,69 +40,6 @@ export class ChromeStore {
 			this.storage = data;
 		}, (e) => {
 			throw new errors.ChromeStorageError(e);
-		});
-	}
-
-	private prepareStorage(): void {
-		const keys = Object.keys(this.storage);
-
-		for (let k of keys) {
-			const val = this.storage[k];
-			this.storage[`_${k}`] = val;
-
-			Object.defineProperty(this.storage, k, {
-				get: () => {
-					return this.storage[`_${k}`];
-				},
-				set: () => {
-					throw new errors.ChromeStoreError('Now');
-				}
-			});
-		}
-	}
-
-	private validateConfig(): boolean {
-		const schema = {
-			onChange: 'function',
-			trackChanges: 'boolean',
-			area: ['local', 'sync']
-		};
-
-		const keys = Object.keys(schema);
-		let valid = true;
-
-		for (let k of keys) {
-			const check = schema[k];
-			if (typeof check === 'string') {
-				if (typeof this.config[k] !== check) {
-					valid = false;
-					break;
-				}
-			} else if (Array.isArray(check)) {
-				if (!check.includes(this.config[k])) {
-					valid = false;
-					break;
-				}
-			}
-		}
-
-		return valid;
-	}
-
-	private addEventListener(fn: types.ChangeFn | void): void {
-		chrome.storage.onChanged.addListener((changes: interfaces.Change, area: string) => {
-			if (fn) {
-				fn(changes, area);
-			}
-
-			// TODO might need to extract values and make a copy
-			const change: interfaces.ChangeLog = {
-				changes,
-				area,
-				timestamp: new Date()
-			};
-
-			this.changes.push(change);
 		});
 	}
 
@@ -135,6 +72,69 @@ export class ChromeStore {
 			this.chromeStore.clear(() => {
 				chrome.runtime.lastError ? reject(chrome.runtime.lastError) : resolve();
 			});
+		});
+	}
+
+	private prepareStorage(): void {
+		const keys = Object.keys(this.storage);
+
+		for (let k of keys) {
+			const val = this.storage[k];
+			this.storage[`_${k}`] = val;
+
+			Object.defineProperty(this.storage, k, {
+				get: () => {
+					return this.storage[`_${k}`];
+				},
+				set: () => {
+					throw new errors.ChromeStoreError('Now');
+				},
+			});
+		}
+	}
+
+	private validateConfig(): boolean {
+		const schema = {
+			area: ['local', 'sync'],
+			onChange: 'function',
+			trackChanges: 'boolean',
+		};
+
+		const keys = Object.keys(schema);
+		let valid = true;
+
+		for (let k of keys) {
+			const check = schema[k];
+			if (typeof check === 'string') {
+				if (typeof this.config[k] !== check) {
+					valid = false;
+					break;
+				}
+			} else if (Array.isArray(check)) {
+				if (!check.includes(this.config[k])) {
+					valid = false;
+					break;
+				}
+			}
+		}
+
+		return valid;
+	}
+
+	private addEventListener(fn: types.ChangeFn | void): void {
+		chrome.storage.onChanged.addListener((changes: interfaces.Change, area: string) => {
+			if (fn) {
+				fn(changes, area);
+			}
+
+			// TODO might need to extract values and make a copy
+			const change: interfaces.ChangeLog = {
+				area,
+				changes,
+				timestamp: new Date(),
+			};
+
+			this.changes.push(change);
 		});
 	}
 }

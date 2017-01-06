@@ -6,6 +6,8 @@
 		"semicolon": [true, "always"],
 		"no-console": [false],
 		"max-line-length": [false],
-		"array-type": [true, "generic"]
+		"array-type": [true, "generic"],
+		"interface-name": [true, "never-prefix"],
+		"max-classes-per-file": [false]
 	}
 }

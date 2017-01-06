@@ -1,11 +1,23 @@
-export interface InterfaceDeferredPromise {
+import * as types from './types';
+
+export interface DeferredPromise {
 	resolve: any;
 	reject: any;
 	promise: Promise<any>;
 };
 
-type ChangeFn = (changes: Object, storageType: string) => any;
+export interface Configuration {
+	onChange?: types.ChangeFn;
+	area?: string;
+	trackChanges?: boolean;
+}
 
-export interface InterfaceConfiguration {
-	onChange: ChangeFn;
+export interface ChangeLog {
+	changes: Object;
+	area: string;
+	timestamp: Date;
+}
+
+export interface Change {
+	[key: string]: chrome.storage.StorageChange;
 }

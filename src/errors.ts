@@ -11,3 +11,14 @@ export class ChromeStorageError extends Error {
 		this.name = 'ChromeStorageError';
 	}
 }
+
+export class ChromeStoreError extends Error {
+	public readonly name: string;
+	public readonly message: string;
+
+	constructor(message) {
+		super(message);
+
+		this.name = 'ChromeStoreError';
+	}
+}

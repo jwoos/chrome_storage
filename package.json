@@ -1,7 +1,7 @@
 {
-	"name": "chrome-extension-helper",
+	"name": "chrome-helper",
 	"version": "0.0.1",
-	"description": "A package to help working with Chrome extension API's",
+	"description": "A package to help working with Chrome APIs",
 	"main": "build/dist/index.js",
 	"scripts": {
 		"pretest": "./scripts/pretest.sh",

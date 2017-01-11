@@ -1,3 +1,3 @@
 'use strict';
 
-import {ChromeStore} from './store';
+export {ChromeStore} from './store';

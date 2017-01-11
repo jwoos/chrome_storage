@@ -22,3 +22,14 @@ export class ChromeStoreError extends Error {
 		this.name = 'ChromeStoreError';
 	}
 }
+
+export class ChromeEventError extends Error {
+	public readonly name: string;
+	public readonly message: string;
+
+	constructor(message) {
+		super(message);
+
+		this.name = 'ChromeEventError';
+	}
+}

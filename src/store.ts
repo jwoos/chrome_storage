@@ -2,6 +2,7 @@
 
 import {LoDashStatic} from '@types/lodash';
 
+import * as Immutable from 'immutable';
 import * as _ from 'lodash';
 
 import * as interfaces from './interfaces';
@@ -12,46 +13,120 @@ import * as utils from './utils';
 
 export class ChromeStore {
 	public readonly _: LoDashStatic;
-	public readonly changes: Array<interfaces.ChangeLog>;
-	public readonly config: interfaces.Configuration;
+	public readonly config: Immutable.Map<string, string | boolean | types.ChangeFn>;
 	public readonly ready: Promise<void | Error>;
 	public readonly utils: Object;
-	public storage: Object;
+
+	public storage: Immutable.Map<string, Object>;
+	public synced: boolean;
+
+	private deferredActions: Array<Object>;
 	private chromeStore: chrome.storage.StorageArea;
+	private storageHistory: Array<Immutable.Map<string, Object>>;
 
 	constructor(config: interfaces.Configuration | void) {
 		const readyPromise: interfaces.DeferredPromise = utils.deferPromise();
 
 		this._ = _;
-		this.config = Object.assign(config || {}, {
+
+		this.config = Immutable.fromJS(Object.assign(config || {}, {
 			area: 'local',
-			onChange: null,
-			trackChanges: true,
-		});
+			onChange: null
+		}));
+
 		this.utils = utils;
 		this.ready = readyPromise.promise;
-		this.storage = {};
+		this.chromeStore = chrome.storage[<string> this.config.get('area')];
+		this.storageHistory = [];
 
-		this.chromeStore = chrome.storage[this.config.area];
-		this.changes = [];
-
-		this.storageGet(null).then((data) => {
+		this.sync().then(() => {
+			synced = true;
+			this.saveCurrentState();
 			readyPromise.resolve();
-			this.storage = data;
+		});
+	}
+
+	get(prop: string): Object {}
+
+	getAll(): Object {}
+
+	set(prop: string, val: Object): void {}
+
+	batch(): Promise<void> {}
+
+	delete(prop: string): void {}
+
+	clear(sync: boolean): void {
+		this.storageClear().then(() => {
+			this.storage = this.storage.clear();
+			this.saveCurrentState();
 		}, (e) => {
 			throw new errors.ChromeStorageError(e);
 		});
 	}
 
-	public storageSet(obj: Object): Promise<void | Object> {
+	undo(): void {}
+
+	flush(): void {
+		if (this.storageHistory.length) {
+			this.storageHistory = [];
+		}
+
+		if (this.storage.size) {
+			this.storage = this.storage.clear();
+		}
+	}
+
+	sync(): Promise<void> {
+		const promises = [];
+
+		if (!this.synced && this.getLatestState() && !Immutable.is(this.storage, this.getLatestState())) {
+			const persist = this.storageSet(this.storage.toJS(), (e) => {
+				throw new errors.ChromeStorageError(e);
+			});
+
+			promises.push(persist);
+		}
+
+		this.flush();
+
+		const refresh = this.storageGet(null).then((data) => {
+			this.storage = <Immutable.Map<string, Object>> Immutable.fromJS(data);
+		}, (e) => {
+			throw new errors.ChromeStorageError(e);
+		});
+
+		promises.push(refresh);
+
+		return Promise.all(promises);
+	}
+
+	public saveCurrentState(): void {
+		this.storageHistory.push(this.storage);
+	}
+
+	public getLatestState(): Immutable.Map<string, Object> {
+		return this.storageHistory[this.storageHistory.length - 1];
+	}
+
+	public getEarliestState(): Immutable.Map<string, Object> {
+		return this.storageHistory[0];
+	}
+
+	protected storageSet(obj: Object): Promise<void | Object> {
 		return new Promise((resolve, reject) => {
 			this.chromeStore.set(obj, () => {
-				chrome.runtime.lastError ? reject(chrome.runtime.lastError) : resolve();
+				if (chrome.runtime.lastError) {
+					reject(chrome.runtime.lastError)
+				} else {
+					resolve();
+					this.synced = true;
+				}
 			});
 		});
 	}
 
-	public storageGet(vals: null | string | Array<string> | Object): Promise<Object> {
+	protected storageGet(vals: null | string | Array<string> | Object): Promise<Object> {
 		return new Promise((resolve, reject) => {
 			this.chromeStore.get(vals, (items) => {
 				chrome.runtime.lastError ? reject(chrome.runtime.lastError) : resolve(items);
@@ -59,38 +134,30 @@ export class ChromeStore {
 		});
 	}
 
-	public storageRemove(vals: Array<string>): Promise<void | Object> {
+	protected storageRemove(vals: Array<string>): Promise<void | Object> {
 		return new Promise((resolve, reject) => {
 			this.chromeStore.remove(vals, () => {
-				chrome.runtime.lastError ? reject(chrome.runtime.lastError) : resolve();
+				if (chrome.runtime.lastError) {
+					reject(chrome.runtime.lastError)
+				} else {
+					resolve();
+					this.synced = true;
+				}
 			});
 		});
 	}
 
-	public storageClear(): Promise<void | Object> {
+	protected storageClear(): Promise<void | Object> {
 		return new Promise((resolve, reject) => {
 			this.chromeStore.clear(() => {
-				chrome.runtime.lastError ? reject(chrome.runtime.lastError) : resolve();
+				if (chrome.runtime.lastError) {
+					reject(chrome.runtime.lastError)
+				} else {
+					resolve();
+					this.synced = true;
+				}
 			});
 		});
-	}
-
-	private prepareStorage(): void {
-		const keys = Object.keys(this.storage);
-
-		for (let k of keys) {
-			const val = this.storage[k];
-			this.storage[`_${k}`] = val;
-
-			Object.defineProperty(this.storage, k, {
-				get: () => {
-					return this.storage[`_${k}`];
-				},
-				set: () => {
-					throw new errors.ChromeStoreError('Now');
-				},
-			});
-		}
 	}
 
 	private validateConfig(): boolean {
@@ -106,12 +173,12 @@ export class ChromeStore {
 		for (let k of keys) {
 			const check = schema[k];
 			if (typeof check === 'string') {
-				if (typeof this.config[k] !== check) {
+				if (typeof this.config.get(k) !== check) {
 					valid = false;
 					break;
 				}
 			} else if (Array.isArray(check)) {
-				if (!check.includes(this.config[k])) {
+				if (!check.includes(this.config.get(k))) {
 					valid = false;
 					break;
 				}

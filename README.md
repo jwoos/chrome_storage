@@ -17,3 +17,5 @@ const storeHelper = new ChromeStore({
 	}
 });
 ```
+
+### chrome.window

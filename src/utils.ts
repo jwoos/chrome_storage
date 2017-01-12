@@ -18,16 +18,3 @@ export const deferPromise = (): interfaces.DeferredPromise => {
 
 	return deferred;
 };
-
-// TODO refine this
-export const addListener = (options: Object) => {
-	const allowed = schema.map((elem) => {
-		return `on${elem[0].toUpperCase()}${elem.slice(1)}`;
-	}).includes(eventType);
-
-	if (!allowed) {
-		throw new errors.ChromeEventError(`Event of type ${eventType} is not allowed on chrome.${api}`);
-	}
-
-	chrome[api][eventType].addListener(fn);
-};

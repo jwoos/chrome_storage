@@ -1,5 +1,8 @@
 'use strict';
 
+import * as ChromeEvent from './event';
+
+// FUNCTIONS
 export const get = (windowId: number, getInfo: chrome.windows.GetInfo): Promise<chrome.windows.Window> => {
 	return new Promise((resolve, reject) => {
 		chrome.windows.get(windowId, getInfo, (w: chrome.windows.Window) => {
@@ -60,13 +63,30 @@ export const remove = (windowId: number): Promise<void> => {
 };
 
 // EVENTS
-/*
- *const listeners = {
- *
- *};
- *
- *export const addEventListener = (eventType: string, fn: any, filter?: Array<string>): void => {
- *  const allowed = ['removed', 'created', 'focusChanged'];
- *  utils.addListener(tracker, 'windows', fn, allowed);
- *};
- */
+const LISTENERS = ['removed', 'created', 'focusChanged'];
+const API_NAME = 'window';
+
+export const addEventListener = (eventType: string, fn: any, filter?: Array<string>): void => {
+	ChromeEvent.addListener({
+		api: API_NAME,
+		callback: fn,
+		eventType,
+		filter: filter || [],
+		schema: LISTENERS,
+	});
+};
+
+export const removeEventListener = (eventType: string, fn: any): void => {
+	ChromeEvent.removeListener({
+		api: API_NAME,
+		callback: fn,
+		eventType,
+		schema: LISTENERS,
+	});
+};
+
+export class WindowEventTracker extends ChromeEvent.EventTracker {
+	constructor() {
+		super(LISTENERS);
+	}
+}

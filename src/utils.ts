@@ -2,6 +2,8 @@
 
 import * as interfaces from './interfaces';
 
+import * as errors from './errors';
+
 export const deferPromise = (): interfaces.DeferredPromise => {
 	const deferred: interfaces.DeferredPromise = {
 		promise: null,

@@ -7,17 +7,25 @@ export interface DeferredPromise {
 };
 
 export interface Configuration {
-	onChange?: types.ChangeFn;
 	area?: string;
+	onChange?: types.ChangeFn;
 	trackChanges?: boolean;
 }
 
 export interface ChangeLog {
-	changes: Object;
 	area: string;
+	changes: Object;
 	timestamp: Date;
 }
 
 export interface Change {
 	[key: string]: chrome.storage.StorageChange;
+}
+
+export interface EventConfiguration {
+	api: string;
+	callback: any;
+	eventType: string;
+	filter?: Array<string>;
+	schema: Array<string>;
 }

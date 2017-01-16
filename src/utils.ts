@@ -1,5 +1,7 @@
 'use strict';
 
+import * as Immutable from 'immutable';
+
 import * as interfaces from './interfaces';
 
 import * as errors from './errors';
@@ -17,4 +19,12 @@ export const deferPromise = (): interfaces.DeferredPromise => {
 	});
 
 	return deferred;
+};
+
+export const isImmutableType = (obj: any): boolean => {
+	// only these two types are used currently
+	const isList = Immutable.List.isList(obj);
+	const isMap = Immutable.Map.isMap(obj);
+
+	return isList || isMap;
 };

@@ -33,3 +33,14 @@ export class ChromeEventError extends Error {
 		this.name = 'ChromeEventError';
 	}
 }
+
+export class ChromeError extends Error {
+	public readonly name: string;
+	public readonly message: string;
+
+	constructor(message) {
+		super(message);
+
+		this.name = 'ChromeError';
+	}
+}

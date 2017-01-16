@@ -1,16 +1,10 @@
-import * as types from './types';
+// import * as types from './types';
 
 export interface DeferredPromise {
 	resolve: any;
 	reject: any;
 	promise: Promise<any>;
 };
-
-export interface Configuration {
-	area?: string;
-	onChange?: types.ChangeFn;
-	trackChanges?: boolean;
-}
 
 export interface ChangeLog {
 	area: string;

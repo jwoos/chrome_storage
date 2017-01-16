@@ -1,73 +1,108 @@
 'use strict';
 
-import {LoDashStatic} from '@types/lodash';
-
 import * as Immutable from 'immutable';
-import * as _ from 'lodash';
 
 import * as interfaces from './interfaces';
-import * as types from './types';
+// import * as types from './types';
+
+import * as ChromeEvent from './event';
 
 import * as errors from './errors';
 import * as utils from './utils';
 
 export class ChromeStore {
-	public readonly _: LoDashStatic;
-	public readonly config: Immutable.Map<string, string | boolean | types.ChangeFn>;
+	public readonly chromeStore: chrome.storage.StorageArea;
+	public readonly area: string;
 	public readonly ready: Promise<void | Error>;
-	public readonly utils: Object;
 
-	public storage: Immutable.Map<string, Object>;
-	public synced: boolean;
-
-	private deferredActions: Array<Object>;
-	private chromeStore: chrome.storage.StorageArea;
+	private storage: Immutable.Map<string, Object>;
 	private storageHistory: Array<Immutable.Map<string, Object>>;
+	private synced: boolean;
 
-	constructor(config: interfaces.Configuration | void) {
+	constructor(area: string) {
 		const readyPromise: interfaces.DeferredPromise = utils.deferPromise();
 
-		this._ = _;
-
-		this.config = Immutable.fromJS(Object.assign(config || {}, {
-			area: 'local',
-			onChange: null
-		}));
-
-		this.utils = utils;
+		this.area = area;
 		this.ready = readyPromise.promise;
-		this.chromeStore = chrome.storage[<string> this.config.get('area')];
+		this.chromeStore = chrome.storage[area];
 		this.storageHistory = [];
 
 		this.sync().then(() => {
-			synced = true;
+			this.synced = true;
 			this.saveCurrentState();
 			readyPromise.resolve();
 		});
 	}
 
-	get(prop: string): Object {}
+	public get(prop: string | Array<string>): Object {
+		const deep: boolean = Array.isArray(prop);
 
-	getAll(): Object {}
+		let val = deep ? this.storage.getIn(<Array<string>> prop) : this.storage.get(<string> prop);
 
-	set(prop: string, val: Object): void {}
+		if (utils.isImmutableType(val)) {
+			val = val.toJS();
+		}
 
-	batch(): Promise<void> {}
-
-	delete(prop: string): void {}
-
-	clear(sync: boolean): void {
-		this.storageClear().then(() => {
-			this.storage = this.storage.clear();
-			this.saveCurrentState();
-		}, (e) => {
-			throw new errors.ChromeStorageError(e);
-		});
+		return val;
 	}
 
-	undo(): void {}
+	public set(prop: string | Array<string>, val: Object, persist: boolean): Promise<void> {
+		const deep: boolean = Array.isArray(prop);
 
-	flush(): void {
+		this.storage = deep ? this.storage.setIn(<Array<string>> prop, val) : this.storage.set(<string> prop, val);
+
+		this.saveCurrentState();
+		this.synced = false;
+
+		let promise = Promise.resolve();
+
+		if (persist) {
+			const data: Immutable.Map<string, Object> = deep ?
+				<Immutable.Map<string, Object>> this.storage.get(prop[0]) :
+				<Immutable.Map<string, Object>> this.storage.get(<string> prop);
+			promise = this.storageSet(data.toJS()).catch(this.rejectionCatcher);
+		}
+
+		return promise;
+	}
+
+	public delete(prop: string | Array<string>, persist: boolean): Promise<void> {
+		const deep: boolean = Array.isArray(prop);
+
+		this.storage = deep ? this.storage.deleteIn(<Array<string>> prop) : this.storage.delete(<string> prop);
+
+		this.saveCurrentState();
+		this.synced = false;
+
+		let promise = Promise.resolve();
+
+		if (persist) {
+			if (deep) {
+				const data: Immutable.Map<string, Object> = <Immutable.Map<string, Object>> this.storage.get(prop[0]);
+				promise = this.storageSet(data.toJS()).catch(this.rejectionCatcher);
+			} else {
+				promise = this.storageRemove([<string> prop]).catch(this.rejectionCatcher);
+			}
+		}
+
+		return promise;
+	}
+
+	public clear(sync: boolean, persist: boolean): Promise<void> {
+		this.storage = this.storage.clear();
+		this.saveCurrentState();
+		this.synced = false;
+
+		let promise = Promise.resolve();
+
+		if (persist) {
+			promise = this.storageClear().catch(this.rejectionCatcher);
+		}
+
+		return promise;
+	}
+
+	public flush(): void {
 		if (this.storageHistory.length) {
 			this.storageHistory = [];
 		}
@@ -77,13 +112,11 @@ export class ChromeStore {
 		}
 	}
 
-	sync(): Promise<void> {
+	public sync(): Promise<void | Array<any>> {
 		const promises = [];
 
 		if (!this.synced && this.getLatestState() && !Immutable.is(this.storage, this.getLatestState())) {
-			const persist = this.storageSet(this.storage.toJS(), (e) => {
-				throw new errors.ChromeStorageError(e);
-			});
+			const persist = this.storageSet(this.storage.toJS()).catch(this.rejectionCatcher);
 
 			promises.push(persist);
 		}
@@ -117,7 +150,7 @@ export class ChromeStore {
 		return new Promise((resolve, reject) => {
 			this.chromeStore.set(obj, () => {
 				if (chrome.runtime.lastError) {
-					reject(chrome.runtime.lastError)
+					reject(chrome.runtime.lastError);
 				} else {
 					resolve();
 					this.synced = true;
@@ -138,7 +171,7 @@ export class ChromeStore {
 		return new Promise((resolve, reject) => {
 			this.chromeStore.remove(vals, () => {
 				if (chrome.runtime.lastError) {
-					reject(chrome.runtime.lastError)
+					reject(chrome.runtime.lastError);
 				} else {
 					resolve();
 					this.synced = true;
@@ -151,7 +184,7 @@ export class ChromeStore {
 		return new Promise((resolve, reject) => {
 			this.chromeStore.clear(() => {
 				if (chrome.runtime.lastError) {
-					reject(chrome.runtime.lastError)
+					reject(chrome.runtime.lastError);
 				} else {
 					resolve();
 					this.synced = true;
@@ -160,48 +193,36 @@ export class ChromeStore {
 		});
 	}
 
-	private validateConfig(): boolean {
-		const schema = {
-			area: ['local', 'sync'],
-			onChange: 'function',
-			trackChanges: 'boolean',
-		};
-
-		const keys = Object.keys(schema);
-		let valid = true;
-
-		for (let k of keys) {
-			const check = schema[k];
-			if (typeof check === 'string') {
-				if (typeof this.config.get(k) !== check) {
-					valid = false;
-					break;
-				}
-			} else if (Array.isArray(check)) {
-				if (!check.includes(this.config.get(k))) {
-					valid = false;
-					break;
-				}
-			}
-		}
-
-		return valid;
+	private rejectionCatcher(e: Error): void {
+		throw new errors.ChromeStorageError(e);
 	}
+}
 
-	private addEventListener(fn: types.ChangeFn | void): void {
-		chrome.storage.onChanged.addListener((changes: interfaces.Change, area: string) => {
-			if (fn) {
-				fn(changes, area);
-			}
+// EVENTS
+const LISTENERS = ['changed'];
+const API_NAME = 'storage';
 
-			// TODO might need to extract values and make a copy
-			const change: interfaces.ChangeLog = {
-				area,
-				changes,
-				timestamp: new Date(),
-			};
+export const addEventListener = (eventType: string, fn: any, filter?: Array<string>): void => {
+	ChromeEvent.addListener({
+		api: API_NAME,
+		callback: fn,
+		eventType,
+		filter: filter || [],
+		schema: LISTENERS,
+	});
+};
 
-			this.changes.push(change);
-		});
+export const removeEventListener = (eventType: string, fn: any): void => {
+	ChromeEvent.removeListener({
+		api: API_NAME,
+		callback: fn,
+		eventType,
+		schema: LISTENERS,
+	});
+};
+
+export class WindowEventTracker extends ChromeEvent.EventTracker {
+	constructor() {
+		super(LISTENERS);
 	}
 }

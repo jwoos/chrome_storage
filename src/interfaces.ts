@@ -4,11 +4,11 @@ export interface DeferredPromise {
 	resolve: any;
 	reject: any;
 	promise: Promise<any>;
-};
+}
 
 export interface ChangeLog {
 	area: string;
-	changes: Object;
+	changes: object;
 	timestamp: Date;
 }
 

@@ -2,7 +2,7 @@
 
 const Jasmine = require('jasmine');
 const jasmine = new Jasmine();
-const specReporter = require('jasmine-spec-reporter');
+const specReporter = require('jasmine-spec-reporter').SpecReporter;
 
 const args = process.argv.slice(2);
 

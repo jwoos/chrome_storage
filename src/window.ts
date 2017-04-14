@@ -54,7 +54,7 @@ export const updated = (windowId: number, data: chrome.windows.UpdateInfo): Prom
 	});
 };
 
-export const remove = (windowId: number): Promise<void> => {
+export const remove = (windowId: number): Promise<null> => {
 	return new Promise((resolve, reject) => {
 		chrome.windows.remove(windowId, () => {
 			resolve();

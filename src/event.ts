@@ -5,13 +5,13 @@ import * as interfaces from './interfaces';
 import * as errors from './errors';
 
 export class EventTracker {
-	public readonly events: Object;
+	public readonly events: object;
 	public readonly schema: Array<string>;
 
 	constructor(schema) {
 		this.schema = schema;
 
-		for (let e of schema.keys()) {
+		for (const e of schema.keys()) {
 			this.events[e] = [];
 		}
 	}

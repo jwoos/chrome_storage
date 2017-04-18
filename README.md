@@ -1,3 +1,6 @@
+# ON HOLD
+The usefulness of this library is becoming increasingly questionable the more I think about it. I will probably salvage the storage portion and leave the rest
+
 # Chrome Helper
 [![Build Status](https://travis-ci.org/jwoos/chrome_helper.svg?branch=master)](https://travis-ci.org/jwoos/chrome_helper)
 [![Dependency Status](https://dependencyci.com/github/jwoos/chrome_helper/badge)](https://dependencyci.com/github/jwoos/chrome_helper)

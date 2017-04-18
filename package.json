@@ -48,14 +48,14 @@
 		"istanbul": "^0.4.5",
 		"jasmine": "^2.5.2",
 		"jasmine-core": "^2.5.2",
-		"jasmine-spec-reporter": "3.2.x",
+		"jasmine-spec-reporter": "4.x.x",
 		"jasmine-terminal-reporter": "^1.0.2",
 		"json-loader": "^0.5.4",
 		"merge-stream": "^1.0.1",
 		"ts-loader": "2.0.x",
 		"tslint": "5.1.x",
 		"typescript": "^2.1.4",
-		"webpack": "2.3.x",
+		"webpack": "2.4.x",
 		"webpack-stream": "^3.2.0"
 	},
 	"dependencies": {

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # clean
-if [ -d build/dist/ ]; then
+if [[ -d build/dist/ ]]; then
 	rm -r build/dist/
 fi
 

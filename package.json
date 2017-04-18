@@ -7,7 +7,8 @@
 		"pretest": "./scripts/pretest.sh",
 		"test": "./scripts/test.sh",
 		"posttest": "./scripts/posttest.sh",
-		"prepublish": "./scripts/pretest.sh"
+		"prepublish": "./scripts/pretest.sh",
+		"interactive": "./scripts/interactive.sh"
 	},
 	"engines": {
 		"node": ">=6.0"

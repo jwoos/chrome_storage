@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 # TODO remove unit after integration tests are done
-istanbul cover test/runner.js unit
+karma start karma.conf.js

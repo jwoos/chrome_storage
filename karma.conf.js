@@ -1,30 +1,33 @@
 module.exports = (config) => {
 	config.set({
 		basePath: './',
-		frameworks: ['jasmine', 'karma-typescript'],
-		include: [
-			'src/*.ts'
-		],
+		frameworks: ['jasmine', 'sinon-chrome', 'karma-typescript'],
 		plugins: [
+			'karma-coverage',
 			'karma-chrome-launcher',
 			'karma-phantomjs-launcher',
-			'karma-coverage',
+			'karma-sinon',
+			'karma-sinon-chrome',
 			'karma-jasmine',
 			'karma-typescript'
 		],
-		colors: true,
+		include: [],
 		exclude: [],
 		files: [
-			'test/unit/*.ts'
+			'src/*.ts'
 		],
 		preprocessors: {
-			'**/*.ts': ['karma-typescript']
+			'src/!(.spec).ts': ['karma-typescript', 'coverage'],
+			'src/*.ts': ['karma-typescript']
 		},
-		reporters: ['progress', 'coverage', 'karma-typescript'],
+		reporters: ['progress', 'karma-typescript'],
 		singleRun: true,
 		colors: true,
 		// change to Chrome headless when it hits stable
-		browsers: ['PhantomJS'],
+		browsers: [
+			'Chrome',
+			//'PhantomJS'
+		],
 		customLaunchers: {
 			ChromeHeadless: {
 				base: 'Chrome',
@@ -38,5 +41,21 @@ module.exports = (config) => {
 				],
 			},
 		},
+		karmaTypescriptConfig: {
+			compilerOptions: {
+				tsconfig: './tsconfig.json',
+			},
+			reports: {
+				lcovonly: {
+					filename: 'lcov.info',
+					directory: './coverage'
+				}
+			}
+		},
+		//logLevel: 'debug'
+		browserConsoleLogOptions: {
+			terminal: true,
+			level: 'log'
+		}
 	});
 };

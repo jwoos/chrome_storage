@@ -84,6 +84,13 @@ gulp.task('js:dist', () => {
 		.pipe(gulp.dest('./build/dist/'));
 });
 
+gulp.task('ts:test', () => {
+	return gulp.src(['./test/**/*.ts', './src/**/*.ts', '!./src/archive/*.ts'])
+		.pipe(plumber())
+		.pipe(tsProject())
+		.js.pipe(gulp.dest('./build/test/'));
+});
+
 gulp.task('ts:srv', () => {
 	return gulp.src(['./src/**/*.ts', '!./src/archive/*.ts'])
 		.pipe(plumber())

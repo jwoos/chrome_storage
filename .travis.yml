@@ -5,7 +5,7 @@ language: node_js
 node_js:
   - "6"
 install:
-  - docker pull jwoos/chrome_storage
+  #- docker pull jwoos/chrome_storage
   - yarn install
 addons:
   apt:

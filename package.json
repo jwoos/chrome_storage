@@ -5,7 +5,7 @@
 	"main": "build/dist/index.js",
 	"scripts": {
 		"pretest": "./scripts/pretest.sh",
-		"test": "./scripts/test.sh docker",
+		"test": "./scripts/test.sh xvfb",
 		"posttest": "./scripts/posttest.sh",
 		"interactive": "./scripts/interactive.sh"
 	},

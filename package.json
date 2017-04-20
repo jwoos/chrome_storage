@@ -5,9 +5,8 @@
 	"main": "build/dist/index.js",
 	"scripts": {
 		"pretest": "./scripts/pretest.sh",
-		"test": "./scripts/test.sh",
+		"test": "./scripts/test.sh docker",
 		"posttest": "./scripts/posttest.sh",
-		"prepublish": "./scripts/pretest.sh",
 		"interactive": "./scripts/interactive.sh"
 	},
 	"engines": {
@@ -27,6 +26,7 @@
 	"license": "MIT",
 	"devDependencies": {
 		"@types/chrome": "^0.0.46",
+		"@types/jasmine": "^2.5.47",
 		"@types/lodash": "^4.14.43",
 		"awesome-typescript-loader": "^3.0.0-beta.9",
 		"babel-loader": "^6.2.9",
@@ -51,7 +51,19 @@
 		"jasmine-spec-reporter": "4.x.x",
 		"jasmine-terminal-reporter": "^1.0.2",
 		"json-loader": "^0.5.4",
+		"karma": "^1.6.0",
+		"karma-chrome-launcher": "^2.0.0",
+		"karma-coverage": "^1.1.1",
+		"karma-jasmine": "^1.1.0",
+		"karma-phantomjs-launcher": "^1.0.4",
+		"karma-sinon": "^1.0.5",
+		"karma-sinon-chrome": "^0.2.0",
+		"karma-typescript": "^3.0.0",
+		"karma-typescript-es6-transform": "^1.0.0",
 		"merge-stream": "^1.0.1",
+		"phantomjs-prebuilt": "^2.1.14",
+		"sinon": "^2.1.0",
+		"sinon-chrome": "^2.2.0",
 		"ts-loader": "2.0.x",
 		"tslint": "5.1.x",
 		"typescript": "^2.1.4",

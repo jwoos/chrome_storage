@@ -1,10 +1,12 @@
+sudo: required
+services:
+  - docker
 language: node_js
 node_js:
-  - "node"
   - "6"
-before_script:
-  - yarn global add bower
-cache: yarn
+before_install:
+  - docker pull jwoos/chrome_storage
+  - docker ps -a
 branches:
   only:
     - master

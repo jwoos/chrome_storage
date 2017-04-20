@@ -5,8 +5,8 @@
 	"main": "build/dist/index.js",
 	"scripts": {
 		"pretest": "./scripts/pretest.sh",
-		"test": "./scripts/test.sh xvfb",
-		"posttest": "./scripts/posttest.sh",
+		"test": "./scripts/test.sh docker",
+		"posttest": "./scripts/posttest.sh docker",
 		"interactive": "./scripts/interactive.sh"
 	},
 	"engines": {

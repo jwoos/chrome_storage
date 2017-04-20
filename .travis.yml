@@ -5,17 +5,8 @@ language: node_js
 node_js:
   - "6"
 install:
-  #- docker pull jwoos/chrome_storage
+  - docker pull jwoos/chrome_storage
   - yarn install
-addons:
-  apt:
-    sources:
-      - google-chrome
-    packages:
-      - google-chrome-stable
-      - xvfb
-before_script:
-  - export CHROME_BIN=google-chrome-stable
 cache:
   yarn: true
   directories:

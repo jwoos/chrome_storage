@@ -4,9 +4,13 @@ services:
 language: node_js
 node_js:
   - "6"
-before_install:
+install:
   - docker pull jwoos/chrome_storage
-  - docker ps -a
+  - yarn install
+cache:
+  yarn: true
+  directories:
+    - node_modules
 branches:
   only:
     - master

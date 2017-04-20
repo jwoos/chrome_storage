@@ -25,7 +25,7 @@ module.exports = (config) => {
 		colors: true,
 		// change to Chrome headless when it hits stable
 		browsers: [
-			'Chrome',
+			'ChromeNoSandBox',
 			//'PhantomJS'
 		],
 		customLaunchers: {
@@ -40,6 +40,12 @@ module.exports = (config) => {
 					' --remote-debugging-port=9222',
 				],
 			},
+			ChromeNoSandBox: {
+				base: 'Chrome',
+				flags: [
+					'--no-sandbox'
+				]
+			}
 		},
 		karmaTypescriptConfig: {
 			compilerOptions: {

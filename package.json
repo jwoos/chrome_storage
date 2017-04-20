@@ -5,9 +5,8 @@
 	"main": "build/dist/index.js",
 	"scripts": {
 		"pretest": "./scripts/pretest.sh",
-		"test": "./scripts/test.sh",
+		"test": "./scripts/test.sh docker",
 		"posttest": "./scripts/posttest.sh",
-		"prepublish": "./scripts/pretest.sh",
 		"interactive": "./scripts/interactive.sh"
 	},
 	"engines": {

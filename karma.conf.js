@@ -5,7 +5,6 @@ module.exports = (config) => {
 		plugins: [
 			'karma-coverage',
 			'karma-chrome-launcher',
-			'karma-phantomjs-launcher',
 			'karma-sinon',
 			'karma-sinon-chrome',
 			'karma-jasmine',
@@ -17,16 +16,13 @@ module.exports = (config) => {
 			'src/*.ts'
 		],
 		preprocessors: {
-			'src/!(.spec).ts': ['karma-typescript', 'coverage'],
 			'src/*.ts': ['karma-typescript']
 		},
 		reporters: ['progress', 'karma-typescript'],
 		singleRun: true,
 		colors: true,
-		// change to Chrome headless when it hits stable
 		browsers: [
-			'ChromeNoSandBox',
-			//'PhantomJS'
+			'ChromeNoSandBox'
 		],
 		customLaunchers: {
 			ChromeHeadless: {
@@ -54,6 +50,7 @@ module.exports = (config) => {
 			reports: {
 				lcovonly: {
 					filename: 'lcov.info',
+					subdirectory: 'lcov',
 					directory: './coverage'
 				}
 			}

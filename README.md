@@ -5,6 +5,7 @@
 
 ## What is this?
 ~~This is a library to abstract away and simplify interactions with the chrome API. The specifics are dependent on which part of the API, but all methods with a callback have been wrapped into a promise. I was initially inspired to write only a storage helper while I was working on an extension, but I realized that an overall helper would be nice.~~
+
 This is a library to provide higher level interactions with the Chrome storage API.
 
 ## Chrome API

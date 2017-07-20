@@ -46,7 +46,7 @@ export class ChromeStore {
 		return val;
 	}
 
-	public set(prop: string | Array<string>, val: object, persist: boolean): Promise<void> {
+	public set(prop: string | Array<string>, val: object, persist: boolean): Promise<void | object> {
 		const deep: boolean = Array.isArray(prop);
 
 		this.storage = deep ? this.storage.setIn(prop as Array<string>, val) : this.storage.set(prop as string, val);
@@ -54,7 +54,7 @@ export class ChromeStore {
 		this.saveCurrentState();
 		this.synced = false;
 
-		let promise = Promise.resolve();
+		let promise: Promise<void | object> = Promise.resolve();
 
 		if (persist) {
 			const data: Immutable.Map<string, object> = deep ?
@@ -66,7 +66,7 @@ export class ChromeStore {
 		return promise;
 	}
 
-	public delete(prop: string | Array<string>, persist: boolean): Promise<void> {
+	public delete(prop: string | Array<string>, persist: boolean): Promise<void | object> {
 		const deep: boolean = Array.isArray(prop);
 
 		this.storage = deep ? this.storage.deleteIn(prop as Array<string>) : this.storage.delete(prop as string);
@@ -74,7 +74,7 @@ export class ChromeStore {
 		this.saveCurrentState();
 		this.synced = false;
 
-		let promise = Promise.resolve();
+		let promise: Promise<void | object> = Promise.resolve();
 
 		if (persist) {
 			if (deep) {
@@ -88,12 +88,12 @@ export class ChromeStore {
 		return promise;
 	}
 
-	public clear(sync: boolean, persist: boolean): Promise<void> {
+	public clear(sync: boolean, persist: boolean): Promise<void | object> {
 		this.storage = this.storage.clear();
 		this.saveCurrentState();
 		this.synced = false;
 
-		let promise = Promise.resolve();
+		let promise: Promise<void | object> = Promise.resolve();
 
 		if (persist) {
 			promise = this.storageClear().catch(this.rejectionCatcher);

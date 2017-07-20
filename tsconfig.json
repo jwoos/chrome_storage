@@ -6,7 +6,11 @@
 		"removeComments": true,
 		"allowJs": true,
 		"outDir": "./build/",
-		"module": "commonjs"
+		"module": "commonjs",
+		"lib": [
+			"dom",
+			"es7"
+		]
 	},
 	"include": [
 		"./src/**/*.ts"

@@ -13,7 +13,12 @@
 		"default_popup": "popup.html"
 	},
 
-	"content_scripts": [],
+	"content_scripts": [
+		{
+			"matches": ["http://*/*", "https://*/*"],
+			"js": ["./index.js"]
+		}
+	],
 
 	"permissions": [
 		"activeTab",
@@ -21,7 +26,6 @@
 		"background",
 		"bookmarks",
 		"browsingData",
-		"certificateProvider",
 		"clipboardRead",
 		"clipboardWrite",
 		"contentSettings",
@@ -33,13 +37,7 @@
 		"desktopCapture",
 		"displaySource",
 		"dns",
-		"documentScan",
 		"downloads",
-		"enterprise.deviceAttributes",
-		"enterprise.platformKeys",
-		"experimental",
-		"fileBrowserHandler",
-		"fileSystemProvider",
 		"fontSettings",
 		"gcm",
 		"geolocation",
@@ -49,10 +47,8 @@
 		"idltest",
 		"management",
 		"nativeMessaging",
-		"networking.config",
 		"notifications",
 		"pageCapture",
-		"platformKeys",
 		"power",
 		"printerProvider",
 		"privacy",
@@ -71,8 +67,6 @@
 		"tts",
 		"ttsEngine",
 		"unlimitedStorage",
-		"vpnProvider",
-		"wallpaper",
 		"webNavigation",
 		"webRequest",
 		"webRequestBlocking"

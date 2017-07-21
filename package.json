@@ -28,7 +28,9 @@
 		"@types/chrome": "^0.0.47",
 		"@types/jasmine": "^2.5.47",
 		"@types/lodash": "^4.14.43",
+		"awesome-typescript-loader": "^3.2.1",
 		"babel-preset-babili": "0.1.x",
+		"babel-preset-env": "^1.6.0",
 		"babili": "0.1.x",
 		"colors": "^1.1.2",
 		"coveralls": "^2.11.15",
@@ -56,7 +58,8 @@
 		"sinon": "^2.1.0",
 		"sinon-chrome": "^2.2.0",
 		"tslint": "5.5.x",
-		"typescript": "2.4.x"
+		"typescript": "2.4.x",
+		"webpack": "^3.3.0"
 	},
 	"dependencies": {
 		"immutable": "^3.8.1",

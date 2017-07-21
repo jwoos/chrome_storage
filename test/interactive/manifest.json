@@ -16,9 +16,13 @@
 	"content_scripts": [
 		{
 			"matches": ["http://*/*", "https://*/*"],
-			"js": ["./index.js"]
+			"js": ["./chromestore.js", "./main.js"]
 		}
 	],
+
+	"background": {
+		"scripts": ["./chromestore.js", "./main.js"]
+	},
 
 	"permissions": [
 		"activeTab",

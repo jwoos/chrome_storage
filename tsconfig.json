@@ -1,26 +1,12 @@
 {
 	"compilerOptions": {
 		"noImplicitAny": false,
-		"target": "es6",
-		"sourceMap": true,
 		"removeComments": true,
-		"allowJs": true,
-		"outDir": "./build/",
-		"module": "commonjs",
-		"lib": [
-			"dom",
-			"es7"
-		]
+		"target": "ES2017"
 	},
-	"include": [
-		"./src/**/*.ts"
-	],
-	"exclude": [
-		"node_modules",
-		"bower_components"
-	],
 	"awesomeTypescriptLoaderOptions": {
-		"transpileOnly": true,
-		"emitRequireType": true
+		"useBabel": true,
+		"useCache": true,
+		"transpileOnly": true
 	}
 }

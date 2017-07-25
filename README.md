@@ -13,13 +13,10 @@ This is a library to provide higher level interactions with the Chrome storage A
 ### chrome.storage
 LINK: https://developer.chrome.com/extensions/storage
 
-When the store is initialized, it will `sync` with the store. It will retrieve the data from the store and save it to an Immutable.Map. At this point, the ready promise will be resolved and the synced property should be true.
+When the store is initialized, it will `sync` with the store. It will retrieve the data from the store and save it to an `Immutable.Map`. At this point, the ready promise will be resolved and the synced property should be true.
 
 ```js
-const storeHelper = new ChromeStore({
-	area: 'local',
-	onChange: (changes, area) => {
-		console.log(changes, area);
-	}
-});
+const storeHelper = new ChromeStore('local');
 ```
+
+### API

@@ -1,4 +1,1 @@
-console.log(window.ChromeStore);
-console.log(chrome.storage);
-
-window.test = new ChromeStore.ChromeStore('local');
+window.test = new ChromeStorage.ChromeStore('local');

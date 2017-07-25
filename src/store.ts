@@ -11,29 +11,38 @@ import * as errors from './errors';
 import * as utils from './utils';
 
 export class ChromeStore {
-	public readonly chromeStore: chrome.storage.StorageArea;
+	// chrome.storage area
+	public readonly store: chrome.storage.StorageArea;
+	// local or managed
 	public readonly area: string;
+	// ready
 	public readonly ready: Promise<void | Error>;
 
+	// in memory immutable store
 	private storage: Immutable.Map<string, object>;
-	private storageHistory: Array<Immutable.Map<string, object>>;
+	// all the previous states
+	private history: Array<Immutable.Map<string, object>>;
+	// if store is in sync with storage
 	private synced: boolean;
 
 	constructor(area: string) {
 		const readyPromise: interfaces.DeferredPromise = utils.deferPromise();
 
-		if (!area || !['local', 'managed'].includes(area)) {
+		if (!area) {
+			area = 'local';
+		}
+
+		if (!['local', 'managed'].includes(area)) {
 			throw new errors.ChromeStorageError('Not a valid storage option');
 		}
 
 		this.area = area;
 		this.ready = readyPromise.promise;
-		this.chromeStore = chrome.storage[area];
+		this.store = chrome.storage[area];
 		this.storage = Immutable.Map();
-		this.storageHistory = [];
+		this.history = [];
 
 		this.sync().then(() => {
-			this.synced = true;
 			this.saveCurrentState();
 			readyPromise.resolve();
 		});
@@ -108,8 +117,8 @@ export class ChromeStore {
 	}
 
 	public flush(): void {
-		if (this.storageHistory.length) {
-			this.storageHistory = [];
+		if (this.history.length) {
+			this.history = [];
 		}
 
 		if (this.storage.size) {
@@ -136,24 +145,26 @@ export class ChromeStore {
 
 		promises.push(refresh);
 
-		return Promise.all(promises);
+		return Promise.all(promises).then(() => {
+			this.synced = true;
+		});
 	}
 
 	public saveCurrentState(): void {
-		this.storageHistory.push(this.storage);
+		this.history.push(this.storage);
 	}
 
 	public getLatestState(): Immutable.Map<string, object> {
-		return this.storageHistory[this.storageHistory.length - 1];
+		return this.history[this.history.length - 1];
 	}
 
 	public getEarliestState(): Immutable.Map<string, object> {
-		return this.storageHistory[0];
+		return this.history[0];
 	}
 
 	protected storageSet(obj: object): Promise<void | object> {
 		return new Promise((resolve, reject) => {
-			this.chromeStore.set(obj, () => {
+			this.store.set(obj, () => {
 				if (chrome.runtime.lastError) {
 					reject(chrome.runtime.lastError);
 				} else {
@@ -166,7 +177,7 @@ export class ChromeStore {
 
 	protected storageGet(vals: null | string | Array<string> | object): Promise<object> {
 		return new Promise((resolve, reject) => {
-			this.chromeStore.get(vals, (items) => {
+			this.store.get(vals, (items) => {
 				chrome.runtime.lastError ? reject(chrome.runtime.lastError) : resolve(items);
 			});
 		});
@@ -174,7 +185,7 @@ export class ChromeStore {
 
 	protected storageRemove(vals: Array<string>): Promise<void | object> {
 		return new Promise((resolve, reject) => {
-			this.chromeStore.remove(vals, () => {
+			this.store.remove(vals, () => {
 				if (chrome.runtime.lastError) {
 					reject(chrome.runtime.lastError);
 				} else {
@@ -187,7 +198,7 @@ export class ChromeStore {
 
 	protected storageClear(): Promise<void | object> {
 		return new Promise((resolve, reject) => {
-			this.chromeStore.clear(() => {
+			this.store.clear(() => {
 				if (chrome.runtime.lastError) {
 					reject(chrome.runtime.lastError);
 				} else {

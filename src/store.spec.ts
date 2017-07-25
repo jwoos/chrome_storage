@@ -18,5 +18,15 @@ describe('ChromeStore', () => {
 			mockSync.restore();
 			mockSaveCurrentState.restore();
 		});
+
+		it('should initialize with remote', () => {
+		});
+	});
+
+	describe('[Method] get', () => {
+		let cs;
+		beforeEach(() => {
+			cs = new ChromeStore('local');
+		});
 	});
 });

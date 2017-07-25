@@ -5,7 +5,7 @@ module.exports = {
 	output: {
 		path: path.resolve(__dirname, 'build'),
 		filename: 'chromestore.js',
-		library: 'ChromeStore',
+		library: 'ChromeStorage',
 		libraryTarget: 'window'
 	},
 	module: {

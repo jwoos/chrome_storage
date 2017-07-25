@@ -1,46 +1,32 @@
 'use strict';
 
+abstract class BaseError extends Error {
+	public readonly name: string = 'BaseError';
+	public readonly message: string;
+
+	constructor(message?: string) {
+		super(message);
+		Object.setPrototypeOf(this, this.constructor.prototype);
+	}
+}
+
 // Error to throw when Chrome storage API fails
-export class ChromeStorageError extends Error {
-	public readonly name: string;
+export class ChromeStorageError extends BaseError {
+	public readonly name: string = 'ChromeStorageError';
 	public readonly message: string;
-
-	constructor(message) {
-		super(message);
-
-		this.name = 'ChromeStorageError';
-	}
 }
 
-export class ChromeStoreError extends Error {
-	public readonly name: string;
+export class ChromeStoreError extends BaseError {
+	public readonly name: string = 'ChromeStoreError';
 	public readonly message: string;
-
-	constructor(message) {
-		super(message);
-
-		this.name = 'ChromeStoreError';
-	}
 }
 
-export class ChromeEventError extends Error {
-	public readonly name: string;
+export class ChromeEventError extends BaseError {
+	public readonly name: string = 'ChromeEventError';
 	public readonly message: string;
-
-	constructor(message) {
-		super(message);
-
-		this.name = 'ChromeEventError';
-	}
 }
 
 export class ChromeError extends Error {
-	public readonly name: string;
+	public readonly name: string = 'ChromeError';
 	public readonly message: string;
-
-	constructor(message) {
-		super(message);
-
-		this.name = 'ChromeError';
-	}
 }

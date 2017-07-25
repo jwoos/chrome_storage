@@ -22,9 +22,14 @@ export class ChromeStore {
 	constructor(area: string) {
 		const readyPromise: interfaces.DeferredPromise = utils.deferPromise();
 
+		if (!area || !['local', 'managed'].includes(area)) {
+			throw new errors.ChromeStorageError('Not a valid storage option');
+		}
+
 		this.area = area;
 		this.ready = readyPromise.promise;
 		this.chromeStore = chrome.storage[area];
+		this.storage = Immutable.Map();
 		this.storageHistory = [];
 
 		this.sync().then(() => {

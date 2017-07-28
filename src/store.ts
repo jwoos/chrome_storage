@@ -48,10 +48,22 @@ export class ChromeStore {
 		});
 	}
 
-	public get(prop: string | Array<string>): object {
+	public getAsImmutable(prop: void | string | Array<string>): Immutable.Map<string, object> {
+		const whole = !prop;
 		const deep: boolean = Array.isArray(prop);
 
-		let val = deep ? this.storage.getIn(prop as Array<string>) : this.storage.get(prop as string);
+		let val;
+		if (whole) {
+			val = this.storage;
+		} else {
+			val = deep ? this.storage.getIn(prop as Array<string>) : this.storage.get(prop as string);
+		}
+
+		return val;
+	}
+
+	public get(prop: void | string | Array<string>): object {
+		let val = this.getAsImmutable(prop);
 
 		if (utils.isImmutableType(val)) {
 			val = val.toJS();
@@ -71,10 +83,9 @@ export class ChromeStore {
 		let promise: Promise<void | object> = Promise.resolve();
 
 		if (persist) {
-			const data: Immutable.Map<string, object> = deep ?
-				this.storage.get(prop[0]) as Immutable.Map<string, object> :
-				this.storage.get(prop as string) as Immutable.Map<string, object>;
-			promise = this.storageSet(data.toJS()).catch(this.rejectionCatcher);
+			prop = deep ? prop[0] : prop;
+			const data: Immutable.Map<string, object> = this.getAsImmutable(prop as string) as Immutable.Map<string, object>;
+			promise = this.storeSet({[prop[0]]: data.toJS()}).catch(this.rejectionCatcher);
 		}
 
 		return promise;
@@ -93,9 +104,9 @@ export class ChromeStore {
 		if (persist) {
 			if (deep) {
 				const data: Immutable.Map<string, object> = this.storage.get(prop[0]) as Immutable.Map<string, object>;
-				promise = this.storageSet(data.toJS()).catch(this.rejectionCatcher);
+				promise = this.storeSet(data.toJS()).catch(this.rejectionCatcher);
 			} else {
-				promise = this.storageRemove([prop as string]).catch(this.rejectionCatcher);
+				promise = this.storeDelete([prop as string]).catch(this.rejectionCatcher);
 			}
 		}
 
@@ -110,7 +121,7 @@ export class ChromeStore {
 		let promise: Promise<void | object> = Promise.resolve();
 
 		if (persist) {
-			promise = this.storageClear().catch(this.rejectionCatcher);
+			promise = this.storeClear().catch(this.rejectionCatcher);
 		}
 
 		return promise;
@@ -130,14 +141,14 @@ export class ChromeStore {
 		const promises = [];
 
 		if (!this.synced && this.getLatestState() && !Immutable.is(this.storage, this.getLatestState())) {
-			const persist = this.storageSet(this.storage.toJS()).catch(this.rejectionCatcher);
+			const persist = this.storeSet(this.storage.toJS()).catch(this.rejectionCatcher);
 
 			promises.push(persist);
 		}
 
 		this.flush();
 
-		const refresh = this.storageGet(null).then((data) => {
+		const refresh = this.storeGet(null).then((data) => {
 			this.storage = Immutable.fromJS(data) as Immutable.Map<string, object>;
 		}, (e) => {
 			throw new errors.ChromeStorageError(e);
@@ -162,7 +173,7 @@ export class ChromeStore {
 		return this.history[0];
 	}
 
-	protected storageSet(obj: object): Promise<void | object> {
+	protected storeSet(obj: object): Promise<void | object> {
 		return new Promise((resolve, reject) => {
 			this.store.set(obj, () => {
 				if (chrome.runtime.lastError) {
@@ -175,7 +186,7 @@ export class ChromeStore {
 		});
 	}
 
-	protected storageGet(vals: null | string | Array<string> | object): Promise<object> {
+	protected storeGet(vals: null | string | Array<string> | object): Promise<object> {
 		return new Promise((resolve, reject) => {
 			this.store.get(vals, (items) => {
 				chrome.runtime.lastError ? reject(chrome.runtime.lastError) : resolve(items);
@@ -183,7 +194,7 @@ export class ChromeStore {
 		});
 	}
 
-	protected storageRemove(vals: Array<string>): Promise<void | object> {
+	protected storeDelete(vals: Array<string>): Promise<void | object> {
 		return new Promise((resolve, reject) => {
 			this.store.remove(vals, () => {
 				if (chrome.runtime.lastError) {
@@ -196,7 +207,7 @@ export class ChromeStore {
 		});
 	}
 
-	protected storageClear(): Promise<void | object> {
+	protected storeClear(): Promise<void | object> {
 		return new Promise((resolve, reject) => {
 			this.store.clear(() => {
 				if (chrome.runtime.lastError) {

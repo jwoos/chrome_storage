@@ -1,6 +1,7 @@
 'use strict';
 
 import * as Immutable from 'immutable';
+import DeepDiff from 'deep-diff';
 
 import * as interfaces from './interfaces';
 // import * as types from './types';
@@ -24,8 +25,10 @@ export class ChromeStore {
 	private history: Array<Immutable.Map<string, object>>;
 	// if store is in sync with storage
 	private synced: boolean;
+	// index of last synced index in history
+	private lastSyncedIndex: number;
 
-	constructor(area: string) {
+	constructor(area: string, syncEvery: number = 5) {
 		const readyPromise: interfaces.DeferredPromise = utils.deferPromise();
 
 		if (!area) {
@@ -48,20 +51,6 @@ export class ChromeStore {
 		});
 	}
 
-	public getAsImmutable(prop: void | string | Array<string>): Immutable.Map<string, object> {
-		const whole = !prop;
-		const deep: boolean = Array.isArray(prop);
-
-		let val;
-		if (whole) {
-			val = this.storage;
-		} else {
-			val = deep ? this.storage.getIn(prop as Array<string>) : this.storage.get(prop as string);
-		}
-
-		return val;
-	}
-
 	public get(prop: void | string | Array<string>): object {
 		let val = this.getAsImmutable(prop);
 
@@ -75,7 +64,7 @@ export class ChromeStore {
 	public set(prop: string | Array<string>, val: object, persist: boolean): Promise<void | object> {
 		const deep: boolean = Array.isArray(prop);
 
-		this.storage = deep ? this.storage.setIn(prop as Array<string>, val) : this.storage.set(prop as string, val);
+		this.storage = this.storage.setIn(prop as Array<string>, val);
 
 		this.saveCurrentState();
 		this.synced = false;
@@ -84,11 +73,20 @@ export class ChromeStore {
 
 		if (persist) {
 			prop = deep ? prop[0] : prop;
-			const data: Immutable.Map<string, object> = this.getAsImmutable(prop as string) as Immutable.Map<string, object>;
-			promise = this.storeSet({[prop[0]]: data.toJS()}).catch(this.rejectionCatcher);
+			let data: Immutable.Map<string, object> = this.getAsImmutable(prop as string) as Immutable.Map<string, object>;
+
+			if (!data.size) {
+				promise = this.storeSet({[prop]: val}).catch(this.rejectionCatcher);
+			} else {
+				promise = this.storeSet({[prop]: data.toJS()}).catch(this.rejectionCatcher);
+			}
 		}
 
 		return promise;
+	}
+
+	public update(prop: string | Array<string>, val: object, persist: boolean): Promise<void | object> {
+
 	}
 
 	public delete(prop: string | Array<string>, persist: boolean): Promise<void | object> {
@@ -218,6 +216,20 @@ export class ChromeStore {
 				}
 			});
 		});
+	}
+
+	private getAsImmutable(prop: void | string | Array<string>): Immutable.Map<string, object> {
+		const whole = !prop;
+		const deep: boolean = Array.isArray(prop);
+
+		let val;
+		if (whole) {
+			val = this.storage;
+		} else {
+			val = deep ? this.storage.getIn(prop as Array<string>) : this.storage.get(prop as string);
+		}
+
+		return val;
 	}
 
 	private rejectionCatcher(e: Error): void {

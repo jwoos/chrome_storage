@@ -1,1 +1,1 @@
-window.test = new ChromeStorage.ChromeStore('local');
+window.cs = new ChromeStorage.ChromeStore('local');

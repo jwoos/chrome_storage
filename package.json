@@ -62,7 +62,7 @@
 		"webpack": "^3.3.0"
 	},
 	"dependencies": {
-		"immutable": "^3.8.1",
-		"lodash": "^4.17.3"
+		"deep-diff": "^0.3.8",
+		"immutable": "^3.8.1"
 	}
 }

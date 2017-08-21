@@ -1,7 +1,6 @@
 'use strict';
 
 import * as Immutable from 'immutable';
-import DeepDiff from 'deep-diff';
 
 import * as interfaces from './interfaces';
 // import * as types from './types';

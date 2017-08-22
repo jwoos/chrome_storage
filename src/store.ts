@@ -84,9 +84,7 @@ export class ChromeStore {
 		return promise;
 	}
 
-	public update(prop: string | Array<string>, val: object, persist: boolean): Promise<void | object> {
-
-	}
+	public update(prop: string | Array<string>, val: object, persist: boolean): Promise<void | object> {}
 
 	public delete(prop: string | Array<string>, persist: boolean): Promise<void | object> {
 		const deep: boolean = Array.isArray(prop);
@@ -110,12 +108,16 @@ export class ChromeStore {
 		return promise;
 	}
 
-	public clear(sync: boolean, persist: boolean): Promise<void | object> {
+	public clear(history: boolean, persist: boolean): Promise<void | object> {
 		this.storage = this.storage.clear();
 		this.saveCurrentState();
 		this.synced = false;
 
 		let promise: Promise<void | object> = Promise.resolve();
+
+		if (history) {
+			this.history = [];
+		}
 
 		if (persist) {
 			promise = this.storeClear().catch(this.rejectionCatcher);
@@ -124,16 +126,7 @@ export class ChromeStore {
 		return promise;
 	}
 
-	public flush(): void {
-		if (this.history.length) {
-			this.history = [];
-		}
-
-		if (this.storage.size) {
-			this.storage = this.storage.clear();
-		}
-	}
-
+	// TODO: this probably isn't efficient - do better diffing
 	public sync(): Promise<void | Array<any>> {
 		const promises = [];
 
